@@ -1,0 +1,21 @@
+<aside class="bg-dark-subtle p-4 d-flex flex-column justify-content-between align-items-center position-fixed bottom-0 top-0 overflow-scroll z-2 sidebar" id="sidebar" style="width: 250px;">
+  <div>
+    <h4 class="text-white text-center mb-4">Edit Resume</h4>
+    <div class="list-group mb-4" style="width:190px;">
+      <a href="/edit/profile" class="list-group-item list-group-item-action <%- current === 'profile' ? 'active' : '' %>">Profile</a>
+      <a href="/edit/about" class="list-group-item list-group-item-action  <%- current === 'about' ? 'active' : '' %>">About</a>
+      <a href="/edit/experiences" class="list-group-item list-group-item-action  <%- current === 'experiences' ? 'active' : '' %>">Experiences</a>
+      <a href="/edit/education" class="list-group-item list-group-item-action  <%- current === 'education' ? 'active' : '' %>">Ecucation</a>
+      <a href="/edit/personal_projects" class="list-group-item list-group-item-action  <%- current === 'personal_projects' ? 'active' : '' %>">Personal Projects</a>
+      <a href="/edit/skills" class="list-group-item list-group-item-action  <%- current === 'skills' ? 'active' : '' %>">Skills</a>
+      <a href="/edit/tools" class="list-group-item list-group-item-action  <%- current === 'tools' ? 'active' : '' %>">Tools/Frameworks</a>
+      <a href="/edit/languages" class="list-group-item list-group-item-action  <%- current === 'languages' ? 'active' : '' %>">Languages</a>
+      <a href="/edit/certifications" class="list-group-item list-group-item-action  <%- current === 'certifications' ? 'active' : '' %>">Certifications</a>
+      <a href="/edit/other_profiles" class="list-group-item list-group-item-action  <%- current === 'other_profiles' ? 'active' : '' %>">Other Profiles</a>
+      <a href="/edit/public_notes" class="list-group-item list-group-item-action  <%- current === 'public_notes' ? 'active' : '' %>">Public Notes</a>
+    </div>
+  </div>
+  <div class="py-3">
+    <a href="/logout" class="text-danger link-offset-1">Logout</a>
+  </div>
+</aside>
