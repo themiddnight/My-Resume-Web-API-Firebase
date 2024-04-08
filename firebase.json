@@ -11,23 +11,12 @@
       ]
     }
   ],
-  "hosting": {
-    "rewrites": [
-      {
-        "source": "**",
-        "function": "app"
-      }
-    ]
-  },
   "storage": {
     "rules": "storage.rules"
   },
   "emulators": {
     "functions": {
       "port": 5001
-    },
-    "hosting": {
-      "port": 5002
     },
     "firestore": {
       "port": 8080
