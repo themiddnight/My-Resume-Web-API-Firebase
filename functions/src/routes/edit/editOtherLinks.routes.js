@@ -21,7 +21,7 @@ router.get("/:resumeId/edit/other_links", async (req, res) => {
   res.json(other_links);
 });
 
-router.post("/:resumeId/edit/other_links", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/other_links", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const { title, subtitle, active, display_limit, data } = req.body;
 

@@ -43,9 +43,9 @@ router.get("/:resumeId/edit/projects", async (req, res) => {
 }
 */
 
-router.post("/:resumeId/edit/projects", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/projects", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
-  const { title, subtitle, active, display_limit, data, deleted_image_paths } =
+  const { title, subtitle, active, display_limit, display_mode, data, deleted_image_paths } =
     req.body;
 
   const projects_data = {
@@ -53,6 +53,7 @@ router.post("/:resumeId/edit/projects", checkWriteDataAuth, async (req, res) => 
     subtitle,
     active,
     display_limit,
+    display_mode,
     data,
   };
 

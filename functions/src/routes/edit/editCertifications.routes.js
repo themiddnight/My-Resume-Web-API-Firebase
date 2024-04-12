@@ -38,7 +38,7 @@ data: {
 deleted_image_paths: string[]
 */
 
-router.post("/:resumeId/edit/certifications", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/certifications", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const {
     title,

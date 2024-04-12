@@ -33,7 +33,7 @@ data: {
 }
 */
 
-router.post("/:resumeId/edit/languages", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/languages", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const {
     title,

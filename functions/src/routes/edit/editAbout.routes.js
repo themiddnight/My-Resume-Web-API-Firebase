@@ -21,7 +21,7 @@ router.get("/:resumeId/edit/about", async (req, res) => {
   res.json(about);
 });
 
-router.post("/:resumeId/edit/about", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/about", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const { title, active, data } = req.body;
 

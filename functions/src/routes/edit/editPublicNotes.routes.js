@@ -21,7 +21,7 @@ router.get("/:resumeId/edit/public_notes", async (req, res) => {
   res.json(public_notes);
 });
 
-router.post("/:resumeId/edit/public_notes", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/public_notes", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const { title, subtitle, active, display_limit } = req.body;
 

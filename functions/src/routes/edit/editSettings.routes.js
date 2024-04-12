@@ -21,7 +21,7 @@ router.get("/:resumeId/edit/settings", async (req, res) => {
   res.json(settings);
 });
 
-router.post("/:resumeId/edit/settings", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/settings", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const { layout, background_mode, intro } = req.body;
   const data = {

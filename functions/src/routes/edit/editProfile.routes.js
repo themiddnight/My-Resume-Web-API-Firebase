@@ -32,7 +32,7 @@ router.get("/:resumeId/edit/profile", async (req, res) => {
   res.json(profile);
 });
 
-router.post("/:resumeId/edit/profile", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/edit/profile", checkWriteDataAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const { image_url, image_path, subtitle, contact, links, image_file } =
     req.body;
