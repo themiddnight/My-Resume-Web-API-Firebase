@@ -1,0 +1,95 @@
+{
+  "settings": {
+    "layout": 0,
+    "background_mode": 0,
+    "intro": {
+      "title": "Hi!",
+      "subtitle": "Welcome to my resume",
+      "enter_button": "Enter"
+    }
+  },
+  "profile": {
+    "subtitle": "",
+    "image_path": "",
+    "image_url": "",
+    "contact": {
+      "location": "",
+      "email": "",
+      "phone": ""
+    },
+    "links": []
+  },
+  "about": {
+    "active": true,
+    "title": "About Me",
+    "subtitle": "",
+    "data": [
+      { "content": "" }
+    ]
+  },
+  "education": {
+    "active": true,
+    "title": "Education",
+    "subtitle": "",
+    "display_limit": 2,
+    "data": []
+  },
+  "experiences": {
+    "active": true,
+    "title": "Experiences",
+    "subtitle": "",
+    "display_limit": 3,
+    "data": []
+  },
+  "projects": {
+    "active": true,
+    "title": "Projects",
+    "subtitle": "",
+    "display_limit": 3,
+    "display_mode": 0,
+    "data": []
+  },
+  "skills": {
+    "active": true,
+    "title": "Skills",
+    "subtitle": "",
+    "display_limit": 5,
+    "data": []
+  },
+  "tools": {
+    "active": true,
+    "title": "Tools",
+    "subtitle": "",
+    "display_limit": 5,
+    "display_mode": 0,
+    "data": []
+  },
+  "languages": {
+    "active": true,
+    "title": "Languages",
+    "subtitle": "",
+    "display_limit": 3,
+    "data": []
+  },
+  "certifications": {
+    "active": true,
+    "title": "Certifications",
+    "subtitle": "",
+    "display_limit": 3,
+    "data": []
+  },
+  "other_links": {
+    "active": true,
+    "title": "Other Links",
+    "subtitle": "",
+    "display_limit": 3,
+    "data": []
+  },
+
+  "public_notes": {
+    "active": true,
+    "title": "Public Notes",
+    "subtitle": "",
+    "display_limit": 3
+  }
+}
