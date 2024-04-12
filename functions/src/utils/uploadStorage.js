@@ -4,26 +4,26 @@ const bucket = getStorage().bucket();
 
 /**
  * upload base64 image to storage. returns the public url and path
- * @param {string} resumeId string
- * @param {string} pathName string
- * @param {string} image_url string
- * @param {base64} image_file string (base64)
- * @param {string} image_path string
+ * @param {string} resumeId string: for naming the folder
+ * @param {string} file_name string: for naming prefix of the file
+ * @param {string} image_url string: for checking if user removes the image (empty string)
+ * @param {base64} image_file string (base64): image file in base64
+ * @param {string} original_image_path string: for deleting the old image
  * @returns 
  */
-async function uploadStorage(resumeId, pathName, image_url, image_file, image_path) {
+async function uploadStorage(resumeId, file_name, image_url, image_file, original_image_path) {
   // if user uploads a new image
   if (image_file) {
     // replace the old image
-    if (image_path.length > 0) {
+    if (original_image_path.length > 0) {
       try {
-        const oldFile = bucket.file(image_path);
+        const oldFile = bucket.file(original_image_path);
         await oldFile.delete();
       } catch (error) {
         console.error(error);
       }
     }
-    const imagePath = `${resumeId}/${pathName}_${Date.now()}`;
+    const imagePath = `${resumeId}/${file_name}_${Date.now()}`;
     const file = bucket.file(imagePath);
 
     const imageBase64Arr = image_file.split(",");
@@ -46,9 +46,9 @@ async function uploadStorage(resumeId, pathName, image_url, image_file, image_pa
     return { imageUrl, imagePath };
   } 
   // if user removes the image
-  else if (image_url === "" && image_path.length > 0) {
+  else if (image_url === "" && original_image_path.length > 0) {
     try {
-      const oldFile = bucket.file(image_path);
+      const oldFile = bucket.file(original_image_path);
       await oldFile.delete();
     } catch (error) {
       console.error(error);
@@ -56,7 +56,7 @@ async function uploadStorage(resumeId, pathName, image_url, image_file, image_pa
     return { imageUrl: "", imagePath: "" };
   }
   else {
-    return { imageUrl: image_url, imagePath: image_path };
+    return { imageUrl: image_url, imagePath: original_image_path };
   }
 }
 

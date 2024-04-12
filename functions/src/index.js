@@ -51,22 +51,23 @@ app.use((err, req, res, next) => {
 app.set("trust proxy", 1);
 
 // routes
-app.use('/v1', require('./routes/auth.routes'));
-app.use('/v1', require('./routes/main.routes'));
-app.use('/v1', require('./routes/publicNotes.routes'));
+app.use('/v1/auth', require('./routes/auth.routes'));
+app.use('/v1/user', require('./routes/user.routes'));
+app.use('/v1/resume', require('./routes/resume.routes'));
+app.use('/v1/public_notes', require('./routes/publicNotes.routes'));
 
-app.use('/v1', require('./routes/edit/editProfile.routes'));
-app.use('/v1', require('./routes/edit/editAbout.routes'));
-app.use('/v1', require('./routes/edit/editExperiences.routes'));
-app.use('/v1', require('./routes/edit/editEducation.routes'));
-app.use('/v1', require('./routes/edit/editProjects.routes'));
-app.use('/v1', require('./routes/edit/editSkills.routes'));
-app.use('/v1', require('./routes/edit/editTools.routes'));
-app.use('/v1', require('./routes/edit/editLanguages.routes'));
-app.use('/v1', require('./routes/edit/editCertifications.routes'));
-app.use('/v1', require('./routes/edit/editOtherLinks.routes'));
-app.use('/v1', require('./routes/edit/editPublicNotes.routes'));
-app.use('/v1', require('./routes/edit/editSettings.routes'));
+app.use('/v1/resume', require('./routes/edit/editProfile.routes'));
+app.use('/v1/resume', require('./routes/edit/editAbout.routes'));
+app.use('/v1/resume', require('./routes/edit/editExperiences.routes'));
+app.use('/v1/resume', require('./routes/edit/editEducation.routes'));
+app.use('/v1/resume', require('./routes/edit/editProjects.routes'));
+app.use('/v1/resume', require('./routes/edit/editSkills.routes'));
+app.use('/v1/resume', require('./routes/edit/editTools.routes'));
+app.use('/v1/resume', require('./routes/edit/editLanguages.routes'));
+app.use('/v1/resume', require('./routes/edit/editCertifications.routes'));
+app.use('/v1/resume', require('./routes/edit/editOtherLinks.routes'));
+app.use('/v1/resume', require('./routes/edit/editPublicNotes.routes'));
+app.use('/v1/resume', require('./routes/edit/editSettings.routes'));
 
 
 exports.app = onRequest(app);

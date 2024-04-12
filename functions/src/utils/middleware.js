@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const api_key = process.env.API_KEY;
+const api_key = process.env.FRONTEND_API_KEY;
 
 const checkWriteDataAuth = (req, res, next) => {
   if (req.headers.authorization === `Bearer ${api_key}`) {
