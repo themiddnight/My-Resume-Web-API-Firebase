@@ -10,7 +10,7 @@ const db = getFirestore();
 const bucket = getStorage().bucket();
 
 // API
-router.get("/:resumeId/certifications", checkOwner, async (req, res) => {
+router.get("/:resumeId/collections", checkOwner, async (req, res) => {
   const userId = req.user_id;
   const resumeId = req.params.resumeId;
 
@@ -27,30 +27,29 @@ router.get("/:resumeId/certifications", checkOwner, async (req, res) => {
   }
 
   const resumeRef = db.collection("resumes");
-  const personalcertificationsSnap = await resumeRef
+  const personaltoolsSnap = await resumeRef
     .doc(resumeId)
     .collection("data")
-    .doc("certifications")
+    .doc("collections")
     .get();
-  const personalcertifications = personalcertificationsSnap.data();
+  const personaltools = personaltoolsSnap.data();
 
-  res.json(personalcertifications);
+  res.json(personaltools);
 });
 
 /* 
 data: {
   active: boolean,
   title: string,
-  issuedBy: string,
-  issuedDate: string,
-  credentialUrl: string,
+  description: string,
   image_file: base64,
   image_path: string,
   image_url: string,
+  isMono: boolean
 }
 deleted_image_paths: string[]
 */
-router.put("/:resumeId/certifications", checkOwner, async (req, res) => {
+router.put("/:resumeId/collections", checkOwner, async (req, res) => {
   const userId = req.user_id;
   const resumeId = req.params.resumeId;
   const {
@@ -58,15 +57,17 @@ router.put("/:resumeId/certifications", checkOwner, async (req, res) => {
     subtitle,
     active,
     display_limit,
+    display_mode,
     data,
     deleted_image_paths,
   } = req.body;
 
-  const certifications_data = {
+  const tools_data = {
     title,
     subtitle,
     active,
     display_limit,
+    display_mode,
     data,
   };
 
@@ -83,7 +84,7 @@ router.put("/:resumeId/certifications", checkOwner, async (req, res) => {
     delete item.image_url_original;
     const { imageUrl, imagePath } = await uploadStorage(
       resumeId,
-      "certifications",
+      "collections",
       item.image_url,
       item.image_file,
       item.image_path
@@ -98,11 +99,11 @@ router.put("/:resumeId/certifications", checkOwner, async (req, res) => {
     .collection("resumes")
     .doc(resumeId)
     .collection("data")
-    .doc("certifications")
-    .set(certifications_data);
+    .doc("collections")
+    .set(tools_data);
 
   res.status(201).json({
-    message: "Certifications data updated",
+    message: "Tools data updated",
   });
 });
 

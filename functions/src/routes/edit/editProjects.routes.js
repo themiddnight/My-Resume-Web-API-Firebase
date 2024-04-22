@@ -2,16 +2,28 @@ const express = require("express");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getStorage } = require("firebase-admin/storage");
 
-const { checkWriteDataAuth } = require("../../utils/middleware");
+const { checkOwner } = require("../../utils/middleware");
 const uploadStorage = require("../../utils/uploadStorage");
 
 const router = express.Router();
 const db = getFirestore();
 const bucket = getStorage().bucket();
 
-// API
-router.get("/:resumeId/edit/projects", async (req, res) => {
+router.get("/:resumeId/projects", checkOwner, async (req, res) => {
+  const userId = req.user_id;
   const resumeId = req.params.resumeId;
+
+  // get user data. check if user is the owner of the resume
+  const resumeDocRef = db.collection("resumes").doc(resumeId);
+  const resumeUserId = (await resumeDocRef.get()).data().user_id;
+
+  if (userId !== resumeUserId) {
+    res.status(403).json({
+      status_code: 403,
+      message: "Forbidden",
+    });
+    return;
+  }
 
   const resumeRef = db.collection("resumes");
   const personalProjectsSnap = await resumeRef
@@ -24,26 +36,25 @@ router.get("/:resumeId/edit/projects", async (req, res) => {
   res.json(personalProjects);
 });
 
-/* data:
-{
-  title: string,
-  tags: string[],
-  image_file: base64,
-  image_path: string,
-  image_url: string,
-  description: string,
-  public_link: string,
-  links: [
-    {
-      title: string,
-      url: string
-    }
-  ],
-  createdAt: string
-}
-*/
-
-router.put("/:resumeId/edit/projects", checkWriteDataAuth, async (req, res) => {
+/**
+ * 
+ * title: string,
+ * tags: string[],
+ * image_file: base64,
+ * image_path: string,
+ * image_url: string,
+ * description: string,
+ * public_link: string,
+ * links: [
+ *   {
+ *     title: string,
+ *     url: string
+ *   }
+ * ],
+ * createdAt: string
+ */
+router.put("/:resumeId/projects", checkOwner, async (req, res) => {
+  const userId = req.user_id;
   const resumeId = req.params.resumeId;
   const { title, subtitle, active, display_limit, display_mode, data, deleted_image_paths } =
     req.body;

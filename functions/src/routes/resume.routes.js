@@ -1,29 +1,19 @@
 const express = require('express');
 const { getFirestore } = require("firebase-admin/firestore");
+const { getStorage } = require("firebase-admin/storage");
+
+const { checkKey, checkAuth, checkOwner } = require('../utils/middleware');
 
 const router = express.Router();
 const db = getFirestore();
+const bucket = getStorage().bucket();
 
 // get all resume data
-router.get('/:resumeId/data', async (req, res) => {
+router.get('/:resumeId', checkKey, async (req, res) => {
   const resumeId = req.params.resumeId;
   
   try {  
     const resumeRef = db.collection("resumes");
-
-    // resume data
-    const dataSnap = await resumeRef
-      .doc(resumeId)
-      .collection("data")
-      .get()
-    const dataDocs = dataSnap.docs;
-    if (dataDocs.length === 0) {
-      res.status(404).json({ 
-        status_code: 404, 
-        message: 'Resume not found'
-      });
-      return;
-    }
 
     // resume summary
     const docSnap = await resumeRef
@@ -40,14 +30,27 @@ router.get('/:resumeId/data', async (req, res) => {
 
     // user data
     const userRef = db.collection("users");
-    const userSnap = await userRef
-      .where('resume_ids', 'array-contains', resumeId)
-      .get();
-    const userData = userSnap.docs[0].data();
-    if (userSnap.empty || userData.verified === false) {
+    const resumeUserId = resumeSummary.user_id;
+    const userSnap = await userRef.doc(resumeUserId).get();
+    const userData = userSnap.data();
+    if (!userData || userData.verified === false) {
+      res.status(404).json({
+        status_code: 404,
+        message: 'User not found'
+      });
+      return;
+    }
+
+    // resume data
+    const dataSnap = await resumeRef
+      .doc(resumeId)
+      .collection("data")
+      .get()
+    const dataDocs = dataSnap.docs;
+    if (dataDocs.length === 0) {
       res.status(404).json({ 
         status_code: 404, 
-        message: 'User not found'
+        message: 'Resume not found'
       });
       return;
     }
@@ -65,6 +68,7 @@ router.get('/:resumeId/data', async (req, res) => {
     res.json(data);
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({ 
       status_code: 500, 
       message: 'Internal server error',
@@ -75,28 +79,17 @@ router.get('/:resumeId/data', async (req, res) => {
 });
 
 // get summary resume data (owner name, resume name, active data)
-router.get('/:resumeId/summary', async (req, res) => {
+router.get('/:resumeId/summary', checkAuth, checkOwner, async (req, res) => {
   const resumeId = req.params.resumeId;
   
   try {
-    // get resume owner info
-    const userRef = db.collection("users");
-    const userSnap = await userRef
-      .where('resume_ids', 'array-contains', resumeId)
-      .get();
-    if (userSnap.empty) {
-      res.status(404).json({ 
-        status_code: 404, 
-        message: 'User not found'
-      });
-      return;
-    }
     const resumeRef = db.collection("resumes");
+
     // resume doc data
-    const docSnap = await resumeRef
+    const resumeDocSnap = await resumeRef
       .doc(resumeId)
       .get();
-    if (!docSnap.exists) {
+    if (!resumeDocSnap.exists) {
       res.status(404).json({ 
         status_code: 404, 
         message: 'Resume not found',
@@ -104,20 +97,31 @@ router.get('/:resumeId/summary', async (req, res) => {
       return;
     }
     // resume data
-    const dataSnap = await resumeRef
+    const resuemDataSnap = await resumeRef
       .doc(resumeId)
       .collection("data")
       .get()
-    const dataDocs = dataSnap.docs;
+    const resumeDataDocs = resuemDataSnap.docs;
 
-    // const summary = { ...docSnap.data(), data_active: {} };
+    // find user data
+    const userId = resumeDocSnap.data().user_id;
+    const userRef = db.collection("users");
+    const userSnap = await userRef.doc(userId).get();
+    if (!userSnap.exists) {
+      res.status(404).json({
+        status_code: 404,
+        message: 'User not found'
+      });
+      return;
+    }
+
     const summary = { 
-      owner: userSnap.docs[0].data().name, 
-      ...docSnap.data(), 
+      owner: userSnap.data().name,
+      ...resumeDocSnap.data(), 
       data_active: {} 
     };
 
-    dataDocs.forEach((doc) => {
+    resumeDataDocs.forEach((doc) => {
       const data = doc.data();
       summary.data_active[doc.id] = data.active;
     });
@@ -125,6 +129,7 @@ router.get('/:resumeId/summary', async (req, res) => {
     res.json(summary);
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({ 
       status_code: 500, 
       message: 'Internal server error',
@@ -135,9 +140,24 @@ router.get('/:resumeId/summary', async (req, res) => {
 });
 
 // post: create new resume associated with userId
-router.post('/', async (req, res) => {
+router.post('/', checkAuth, async (req, res) => {
   const templateData = require('../utils/template_data.json')
-  const { userId, resume_name } = req.body;
+  const userId = req.user_id;
+  const resume_name = req.body.resume_name;
+  let resume_id = req.body.resume_id;
+  let resultResume;
+
+  // check user verified
+  const userRef = db.collection("users");
+  const userSnap = await userRef.doc(userId).get();
+  const userData = userSnap.data();
+  if (!userData || userData.verified === false) {
+    res.status(404).json({
+      status_code: 404,
+      message: 'User not found'
+    });
+    return;
+  }
   
   try {
     // resume doc
@@ -145,30 +165,39 @@ router.post('/', async (req, res) => {
     const newResume = {
       user_id: userId,
       resume_name: resume_name,
-      active: true
+      active: true,
+      created_at: new Date()
     };
-    const resultResume = await resumeRef.add(newResume);
+    if (resume_id) {
+      resume_id = resume_id.replace(/\s/g, '');
+      const resumeDocSnap = await resumeRef.doc(resume_id).get();
+      if (resumeDocSnap.exists) {
+        res.status(400).json({
+          status_code: 400,
+          message: 'This resume ID has been used. Please use another ID.'
+        });
+        return;
+      }
+      await resumeRef.doc(resume_id).set(newResume);
+      resultResume = resume_id;
+    } else {
+      const result = await resumeRef.add(newResume);
+      resultResume = result.id;
+    }
 
     // resume data docs
-    const dataRef = resumeRef.doc(resultResume.id).collection("data");
+    const dataRef = resumeRef.doc(resultResume).collection("data");
     for (const key in templateData) {
       await dataRef.doc(key).set(templateData[key]);
     }
 
-    // add resume id to user
-    const userRef = db.collection("users");
-    const userSnap = await userRef.doc(userId).get();
-    const resume_ids = userSnap.data().resume_ids;
-    resume_ids.push(resultResume.id);
-
-    const result = await userRef.doc(userId).update({ resume_ids });
-
     res.status(201).json({
       message: 'Resume created',
-      resume_id: resultResume.id
+      resume_id: resume_id
     });
 
   } catch (error) {
+    console.error(error);
     res.status(500).json({ 
       status_code: 500, 
       message: 'Internal server error',
@@ -179,7 +208,7 @@ router.post('/', async (req, res) => {
 });
 
 // patch: update active or resume_name
-router.patch('/:resumeId', async (req, res) => {
+router.patch('/:resumeId', checkAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   const { active, resume_name } = req.body;
   
@@ -210,12 +239,28 @@ router.patch('/:resumeId', async (req, res) => {
 });
 
 // delete resume
-router.delete('/:resumeId', async (req, res) => {
+router.delete('/:resumeId', checkAuth, async (req, res) => {
   const resumeId = req.params.resumeId;
   
   try {
     const resumeRef = db.collection("resumes");
+    // delete subcollection data
+    await resumeRef
+      .doc(resumeId)
+      .collection("data")
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          doc.ref.delete();
+        });
+      });
+    // delete resume doc
     await resumeRef.doc(resumeId).delete();
+
+    // delete storage
+    await bucket.deleteFiles({
+      prefix: `resumes/${resumeId}/`
+    });
 
     res.json({ 
       message: 'Resume deleted'

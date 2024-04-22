@@ -1,14 +1,26 @@
 const express = require("express");
 const { getFirestore } = require("firebase-admin/firestore");
 
-const { checkWriteDataAuth } = require("../../utils/middleware");
+const { checkOwner } = require("../../utils/middleware");
 
 const router = express.Router();
 const db = getFirestore();
 
-// API
-router.get("/:resumeId/edit/experiences", async (req, res) => {
+router.get("/:resumeId/experiences", checkOwner, async (req, res) => {
+  const userId = req.user_id;
   const resumeId = req.params.resumeId;
+
+  // get user data. check if user is the owner of the resume
+  const resumeDocRef = db.collection("resumes").doc(resumeId);
+  const resumeUserId = (await resumeDocRef.get()).data().user_id;
+
+  if (userId !== resumeUserId) {
+    res.status(403).json({
+      status_code: 403,
+      message: "Forbidden",
+    });
+    return;
+  }
 
   const resumeRef = db.collection("resumes");
   const experiencesSnap = await resumeRef
@@ -21,12 +33,23 @@ router.get("/:resumeId/edit/experiences", async (req, res) => {
   res.json(experiences);
 });
 
-router.put("/:resumeId/edit/experiences", checkWriteDataAuth, async (req, res) => {
+/** 'data' structure:
+ *
+ * active: boolean
+ * title: string
+ * company: string
+ * from: string
+ * to: string
+ * current: boolean
+ * description: { content: string }[]
+ */
+router.put("/:resumeId/experiences", checkOwner, async (req, res) => {
+  const userId = req.user_id;
   const resumeId = req.params.resumeId;
   const { title, subtitle, active, display_limit, data } = req.body;
 
   const resumeRef = db.collection("resumes");
-  const result = await resumeRef
+  await resumeRef
     .doc(resumeId)
     .collection("data")
     .doc("experiences")

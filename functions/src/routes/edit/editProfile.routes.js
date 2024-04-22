@@ -1,13 +1,13 @@
 const express = require("express");
 const { getFirestore } = require("firebase-admin/firestore");
 
-const { checkWriteDataAuth } = require("../../utils/middleware");
+const { checkOwner } = require("../../utils/middleware");
 const uploadStorage = require("../../utils/uploadStorage");
 
 const router = express.Router();
 const db = getFirestore();
 
-router.get("/:resumeId/edit/profile", async (req, res) => {
+router.get("/:resumeId/profile", checkOwner, async (req, res) => {
   const resumeId = req.params.resumeId;
 
   // get resume profile data
@@ -21,21 +21,23 @@ router.get("/:resumeId/edit/profile", async (req, res) => {
   const profile = profileSnap.data();
 
   // get user data
-  const userRef = await db
-    .collection("users")
-    .where("resume_ids", "array-contains", resumeId)
-    .get();
+  const resumeDocRef = db.collection("resumes").doc(resumeId);
+  const resumeUserId = (await resumeDocRef.get()).data().user_id;
+
+  const userRef = db.collection("users");
+  const userSnap = await userRef.doc(resumeUserId).get();
 
   // add user name to profile title
-  profile.title = userRef.docs[0].data().name;
+  profile.title = userSnap.data().name;
 
   res.json(profile);
 });
 
-router.put("/:resumeId/edit/profile", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/profile", checkOwner, async (req, res) => {
   const resumeId = req.params.resumeId;
   const { image_url, image_path, subtitle, contact, links, image_file } =
     req.body;
+    
   const data = {
     image_url,
     image_path,

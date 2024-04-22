@@ -1,8 +1,6 @@
 const express = require("express");
 const { getFirestore } = require("firebase-admin/firestore");
 
-const { checkWriteDataAuth } = require("../utils/middleware");
-
 const router = express.Router();
 const db = getFirestore();
 
@@ -29,7 +27,7 @@ router.get("/:resumeId/public_notes", async (req, res) => {
   res.json(publicNotes);
 });
 
-router.post("/:resumeId/public_notes", checkWriteDataAuth, async (req, res) => {
+router.post("/:resumeId/public_notes", async (req, res) => {
   const resumeId = req.params.resumeId;
   const { content } = req.body;
   const createdAt = new Date();
@@ -60,7 +58,7 @@ router.post("/:resumeId/public_notes", checkWriteDataAuth, async (req, res) => {
   res.json({ id: result.id, ...newNote });
 });
 
-router.delete("/:resumeId/public_notes/:noteId", checkWriteDataAuth, async (req, res) => {
+router.delete("/:resumeId/public_notes/:noteId", async (req, res) => {
   const resumeId = req.params.resumeId;
   const noteId = req.params.noteId;
 

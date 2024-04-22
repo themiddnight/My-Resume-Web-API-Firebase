@@ -2,7 +2,7 @@ const express = require("express");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getStorage } = require("firebase-admin/storage");
 
-const { checkWriteDataAuth } = require("../../utils/middleware");
+const { checkOwner } = require("../../utils/middleware");
 const uploadStorage = require("../../utils/uploadStorage");
 
 const router = express.Router();
@@ -10,8 +10,21 @@ const db = getFirestore();
 const bucket = getStorage().bucket();
 
 // API
-router.get("/:resumeId/edit/skills", async (req, res) => {
+router.get("/:resumeId/skills", checkOwner, async (req, res) => {
+  const userId = req.user_id;
   const resumeId = req.params.resumeId;
+
+  // get user data. check if user is the owner of the resume
+  const resumeDocRef = db.collection("resumes").doc(resumeId);
+  const resumeUserId = (await resumeDocRef.get()).data().user_id;
+
+  if (userId !== resumeUserId) {
+    res.status(403).json({
+      status_code: 403,
+      message: "Forbidden",
+    });
+    return;
+  }
 
   const resumeRef = db.collection("resumes");
   const personalskillsSnap = await resumeRef
@@ -37,8 +50,8 @@ data: {
 }
 deleted_image_paths: string[]
 */
-
-router.put("/:resumeId/edit/skills", checkWriteDataAuth, async (req, res) => {
+router.put("/:resumeId/skills", checkOwner, async (req, res) => {
+  const userId = req.user_id;
   const resumeId = req.params.resumeId;
   const { title, subtitle, active, display_limit, data, deleted_image_paths } =
     req.body;
@@ -69,7 +82,7 @@ router.put("/:resumeId/edit/skills", checkWriteDataAuth, async (req, res) => {
       item.image_file,
       item.image_path
     );
-
+    
     item.image_url = imageUrl;
     item.image_path = imagePath;
     delete item.image_file;
