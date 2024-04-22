@@ -1,7 +1,12 @@
 {
   "settings": {
     "layout": 0,
-    "background_mode": 0,
+    "background": {
+      "mode": 0,
+      "color": "#ffffff",
+      "image_url": "",
+      "image_path": ""
+    },
     "intro": {
       "title": "Hi!",
       "subtitle": "Welcome to my resume",
@@ -56,9 +61,9 @@
     "display_limit": 5,
     "data": []
   },
-  "tools": {
+  "collections": {
     "active": true,
-    "title": "Tools",
+    "title": "Collections",
     "subtitle": "",
     "display_limit": 5,
     "display_mode": 0,
