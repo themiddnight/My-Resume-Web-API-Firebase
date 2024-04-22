@@ -17,15 +17,16 @@ admin.initializeApp({
   storageBucket: config.storageBucket
 });
 
-require('./utils/setTemplateData').setExampleData();
-// require('./utils/setTemplateData').setTemplateData();
+const { checkAuth } = require('./utils/middleware');
 
 const app = express();
 
-// middleware
+// Trust first proxy
+app.set("trust proxy", 1);
+
+// middlewares
 app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
 
 app.use(
@@ -38,6 +39,7 @@ app.use(
   })
 );
 
+// error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ 
@@ -45,29 +47,33 @@ app.use((err, req, res, next) => {
     message: "Internal server error",
     error: err
   });
-})
+});
 
-// Trust first proxy
-app.set("trust proxy", 1);
+// require('./utils/setData').setExampleData();
+// emulate slow network
+// app.use(async (req, res, next) => {
+//   await new Promise(resolve => setTimeout(resolve, 1000));
+//   next();
+// });
 
 // routes
 app.use('/v1/auth', require('./routes/auth.routes'));
-app.use('/v1/user', require('./routes/user.routes'));
+app.use('/v1/user', checkAuth, require('./routes/user.routes'));
 app.use('/v1/resume', require('./routes/resume.routes'));
 app.use('/v1/public_notes', require('./routes/publicNotes.routes'));
 
-app.use('/v1/resume', require('./routes/edit/editProfile.routes'));
-app.use('/v1/resume', require('./routes/edit/editAbout.routes'));
-app.use('/v1/resume', require('./routes/edit/editExperiences.routes'));
-app.use('/v1/resume', require('./routes/edit/editEducation.routes'));
-app.use('/v1/resume', require('./routes/edit/editProjects.routes'));
-app.use('/v1/resume', require('./routes/edit/editSkills.routes'));
-app.use('/v1/resume', require('./routes/edit/editTools.routes'));
-app.use('/v1/resume', require('./routes/edit/editLanguages.routes'));
-app.use('/v1/resume', require('./routes/edit/editCertifications.routes'));
-app.use('/v1/resume', require('./routes/edit/editOtherLinks.routes'));
-app.use('/v1/resume', require('./routes/edit/editPublicNotes.routes'));
-app.use('/v1/resume', require('./routes/edit/editSettings.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editProfile.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editAbout.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editExperiences.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editEducation.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editProjects.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editSkills.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editCollections.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editLanguages.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editCertifications.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editOtherLinks.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editPublicNotes.routes'));
+app.use('/v1/edit', checkAuth, require('./routes/edit/editSettings.routes'));
 
 
 exports.app = onRequest(app);
