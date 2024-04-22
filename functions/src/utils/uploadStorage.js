@@ -23,7 +23,7 @@ async function uploadStorage(resumeId, file_name, image_url, image_file, origina
         console.error(error);
       }
     }
-    const imagePath = `${resumeId}/${file_name}_${Date.now()}`;
+    const imagePath = `resumes/${resumeId}/${file_name}_${Date.now()}`;
     const file = bucket.file(imagePath);
 
     const imageBase64Arr = image_file.split(",");
