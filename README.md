@@ -1,7 +1,7 @@
 # Introduction
 
-This is an API service for creating resume data. Using Express.js framework and hosted in Firebase.
-You can use it to create your resume [here](https://themiddnigth.github.io/#/create).
+This is my backend study project. It is an API service for creating resume data. Using Express.js framework and hosted in Firebase.
+You can try it to create your resume [here](https://themiddnigth.github.io/#/create).
 And see my example resume [here](https://themiddnigth.github.io).
 
 # Routes
