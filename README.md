@@ -444,7 +444,7 @@ sequenceDiagram
 
 # Todo next
 
-- Now the access token expires in 1 day. I will change it to be less lifetime and create another refresh token for more security.
+- Adjust the access token to be less lifetime and create a refresh token for more security.
 - Implement social login.
 - Implement Redis cache to reduce reading the firestore database directly.
 - Make user can create API key so user can access their own raw data.
