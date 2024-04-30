@@ -1,8 +1,8 @@
 # Introduction
 
-This is an API service for create resume data. Using Express.js framework and hosted in Firebase.
-You can use it to create your resume <a href="https://themiddnight.github.io/#/create" target="_blank">here</a>. 
-And see my example resume <a href="https://themiddnight.github.io/" target="_blank">here</a>.
+This is an API service for creating resume data. Using Express.js framework and hosted in Firebase.
+You can use it to create your resume [here](https://themiddnigth.github.io/#/create).
+And see my example resume [here](https://themiddnigth.github.io).
 
 # Routes
 
@@ -35,14 +35,14 @@ These are all routes in the project. Grouped by the project's Express Router fil
 | **PATCH** | /:resumeId | Update resume name or active status |
 | **DELETE** | /:resumeId | Delete resume data and it's storage |
     
-**/v1/public_notes** <br> This is some social features that let anyone can post some messages to anyone's resume
+**/v1/public_notes** <br> This is a social feature that lets anyone post some messages to anyone's resume page
 | Method | Route | Descriptions |
 |--------|-------|--------------|
 | **GET** | /:resumeId/public_notes | Get all messages |
 | **POST** | /:resumeId/public_notes | Create a new message |
 | **DELETE** | /:resumeId/public_notes/:noteId | Delete a message |
     
-**/v1/edit** <br> Each resume's section. Each section has **/GET** and **/PUT**
+**/v1/edit** <br> For updating each resume's section. Each section has **/GET** and **/PUT**
 - /:resumeId/settings
 - /:resumeId/about
 - /:resumeId/certifications
@@ -104,9 +104,9 @@ public_notes: {
 ```
 
 **Resume data subcollections (detail)** <br>
-Note: These following attributes are additional data needed when submited...
+Note: The following attributes are additional data that may needed when submitted...
 - ***image_file: base64** Image file in base64 string
-- ***deleted_image_paths: string[]** List of Firebase storage file path to be removed (when delete resume data, remove image, etc.)
+- ***deleted_image_paths: string[]** List of Firebase storage file paths to be removed (when delete resume data, remove image, etc.)
 <details>
   <summary>settings</summary>
 
@@ -351,14 +351,16 @@ Note: These following attributes are additional data needed when submited...
 </details>
 
 # Auth workflow
+These are workflows that implement the [frontend project](https://github.com/themiddnight/themiddnight.github.io)
+
 **Register**
 ```mermaid
 sequenceDiagram
     actor User
     User->>Frontend: Input name, email, password
     Frontend->>+Backend: POST /v1/auth/register
-    Backend->>Database: Write user data with verified = false
-    Backend->>-User: Send token with email verification
+    Backend->>Database: Write user data, hashed password, verified = false
+    Backend->>-User: Send token verification link via email
     User->>Frontend: Click link to send token
     Frontend->>Backend: POST /v1/auth/verify-email: Send token data
     alt token is valid
@@ -379,8 +381,9 @@ sequenceDiagram
 sequenceDiagram
     actor User
     User->>Frontend: Input email, password
-    Frontend->>+Backend: POST /v1/auth/login
-    Backend-->>Database: Find user via email
+    Frontend->>Backend: POST /v1/auth/login
+    Backend->>Database: Find user via email
+    Database-->>Backend: email and hashed password
     break email not found
         Backend->>Frontend: Response not found
         Frontend->>User: Show not found error
@@ -429,7 +432,7 @@ sequenceDiagram
     User->>Frontend: Click link and input new password
     Frontend->>Backend: /v1/auth/reset-password: send new password
     alt token is valid
-        Backend->>Database: Update password
+        Backend->>Database: Update hashed password
         Backend->>Frontend: Response success
         Frontend->>User: Show success, redirect to login
     else token is not valid
