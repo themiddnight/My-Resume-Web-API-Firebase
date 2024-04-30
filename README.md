@@ -35,7 +35,7 @@ These are all routes in the project. Grouped by the project's Express Router fil
 | **PATCH** | /:resumeId | Update resume name or active status |
 | **DELETE** | /:resumeId | Delete resume data and it's storage |
     
-**/v1/public_notes** <br> This is a social feature that lets anyone post some messages to anyone's resume page
+**/v1/public_notes** <br> This is a small social feature that lets anyone post some messages to anyone's resume page
 | Method | Route | Descriptions |
 |--------|-------|--------------|
 | **GET** | /:resumeId/public_notes | Get all messages |
